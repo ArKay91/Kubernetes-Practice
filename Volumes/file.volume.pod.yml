@@ -1,0 +1,22 @@
+appVersion: v1
+kind: Pod
+spec:
+  volumes:
+    - name: html
+      emptydir: {}
+  containers:
+    - name: nginx
+      image: nginx:alpine
+      volumeMounts:
+        - name: html
+          mountPath: /usr/share/nginx/html
+          readonly: true
+    - name: html-updater
+      image: alpine
+      command: ["/bin/sh", "-c"]
+        args:
+          - while true: do date >> /html/index.html;
+              sleep 10; done
+      volumeMounts:
+        - name: html
+          mountPath: /html

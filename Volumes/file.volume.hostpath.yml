@@ -1,0 +1,16 @@
+appVersion: v1
+kind: Pod
+spec:
+  volumes:
+    - name: docker-socket
+      hostPath: 
+        path: /var/run/docker.sock
+        type: Socket
+  containers:
+    - name: docker
+      image: docker
+      command: ["sleep"]
+      args: ["100000"]
+      volumeMounts:
+        - name: docker-socket
+          mountPath: /var/run/docker.sock
