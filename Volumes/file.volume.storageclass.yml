@@ -1,0 +1,65 @@
+# Storage class is used to provision storage dynamically.
+# Different classes of storage
+# No need to manually set up another persitent volumes.
+# Our goal is to dynamically provision the persistent volume
+# Bounding to ext storage PV bounds to PVC 
+ 
+appVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: local-storage
+reclaimPolicy: Retain
+provisioner: kubernetes.io/no-provisioner # not dynamically provisioned.
+volumeBindingMode: WaitForFirstConsumer
+
+-------------------------------------------------------
+
+# Reference Storage Class
+
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: my-pv
+spec:
+  capacity:
+    storage: 10Gi
+    volumeMode: Block
+    accessModes:
+      - ReadWriteOnce
+    storageClassName: local-storage
+    local:
+      path: /data/storage
+    nodeAffinity:
+      required:
+        nodeSelectorTerms:
+          - matchExpressions:
+            - key: kubernetes.io/hostname
+              opertor: In
+              values:
+                - <node-name>
+
+--------------------------------------------------------
+
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: my-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: local-storage
+  resources:
+    requests:
+      storage: 1Gi
+
+----------------------------------------------------------
+
+apiVersion: apps/v1
+kind: [Pod | StatefulSet | Deployment]
+spec:
+  volumes:
+    - name: my-volume
+      persistentVolumeClaim:
+        claimName: my-pvc
+
+

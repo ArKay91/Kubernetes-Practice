@@ -1,0 +1,57 @@
+# Cluster wide, independent of lifecycle of Pod and replies on network attached storage.
+# Persistent volume claim is a request for a storage unit..
+appVersion: v1
+kind: PersistentVolume
+metadata: 
+  name: my-pv
+spec:
+  capacity: 10Gi
+  accessModes:
+    - ReadWriteOnce # One client can mount for read/write
+    - ReadOnlyMany  # Many clients can mount for reading
+  persistantVOlumeReclaimPolicy: Retain # retain if claim is deleted
+  awsElasticBlockStore: # reference storage to use.
+    volumeID: <volume-id>
+    fsType: <file-type>
+
+---------------------------------------------------------------------------
+
+# Persiatent volume claim is a request for a storage unit
+# Persistent volume claim acts as proxy for Persiatent Volumes
+
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: pvc-pv-accounthdd-5g
+  annotations:
+    volume.beta.kubernetes.io/storage-class: accounthdd
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 5Gi
+
+---------------------------------------------------------------------------
+
+# we need to reference this inside a Pod/Deployment
+
+kind: Pod
+apiVersion: v1
+metadata:
+  name: pod-uses-accounthdd-5g
+  labels:
+    name: storage
+spec:
+  containers:
+    - image: nginx
+      name: aws-ebs-01
+      command:
+        - /bin/sh
+        - -c
+        - while true; do echo $(date) >>
+          /mnt/blobdisk/outfile; sleep 1; done
+      volumes:
+        - name: blobdisk01
+          persiatentVolumeClaim:
+             claimName: pvc-pv-accounthdd-5g
