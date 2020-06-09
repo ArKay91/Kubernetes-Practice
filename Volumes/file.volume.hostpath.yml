@@ -3,8 +3,9 @@ kind: Pod
 spec:
   volumes:
     - name: docker-socket
-      hostPath: 
-        path: /var/run/docker.sock
+      hostPath:  # hostpath volume is to mount to a directory thats on the actual host where the Pod is running
+                 # A pod could get reschedule in case we have many worker nodes   
+        path: /var/run/docker.sock # path on host 
         type: Socket
   containers:
     - name: docker
@@ -12,5 +13,5 @@ spec:
       command: ["sleep"]
       args: ["100000"]
       volumeMounts:
-        - name: docker-socket
+        - name: docker-socket # Whenever a command is executed here it goes to the mount path location mentioned in host spec.
           mountPath: /var/run/docker.sock

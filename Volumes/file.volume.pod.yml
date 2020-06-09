@@ -1,18 +1,19 @@
+
 appVersion: v1
 kind: Pod
 spec:
   volumes:
     - name: html
-      emptydir: {}
+      emptydir: {}    # life-cycle of the volume tied to a Pod. Multiple contaiers inside Pod can share data.
   containers:
     - name: nginx
       image: nginx:alpine
-      volumeMounts:
+      volumeMounts:    # nginx-alpine container mount to path /usr/share/nginx/html
         - name: html
           mountPath: /usr/share/nginx/html
           readonly: true
     - name: html-updater
-      image: alpine
+      image: alpine     # alpine image updates the volume's index.html with date every 10 seconds. 
       command: ["/bin/sh", "-c"]
         args:
           - while true: do date >> /html/index.html;
