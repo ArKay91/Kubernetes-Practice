@@ -1,0 +1,58 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: app-settings
+data:
+  enemies: aliens
+  lives: "3"
+  enemies.cheat: "true"
+  enemies.cheat.level: noGoodRotten
+
+----------------------------------------------------------
+
+# Usage create an environment variable 
+
+apiVersion:  v1
+...
+spec:
+  template:
+  spec:
+    containers:
+    env:
+      - name: ENEMIES
+        valueFrom:  # use "valueFrom" 
+          configMapKeyRef:
+            key: app-settings
+            name: enemies
+
+------------------------------------------------------------
+
+# Load all environment variables
+
+apiVersion: v1
+...
+spec:
+  template:
+  spec:
+    containers:
+      envFrom:  # use "envFrom"
+        - configMapRef:
+          name: app-settings
+
+-----------------------------------------------------------
+
+# Config values can be loaded through volumes
+
+apiVersion: v1
+...
+spec:
+  template:
+  spec:
+    volumes:
+      - name: app-config-vol
+        configMap:   # use "configMap"
+          name: app-settings
+    containers:
+      volumeMounts:
+        - name: app-config-vol
+          mountPath: /etc/config

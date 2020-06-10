@@ -1,0 +1,10 @@
+# File name used as the key for values
+
+appVersion: v1
+kind: ConfigMap
+data:
+  game.config: |-
+    enemies= aliens
+    lives= 3
+    enemies.cheat= true
+    enemies.cheat.level=noGoodRotten
